@@ -5,88 +5,61 @@
 
 
 
-$dir = plugin_dir_path( __FILE__ );
-//
-// /**
-//  * Shortcodes
-//  */
-// require_once $dir . '/inc/shortcode.php';
-//
-// /**
-//  * Scripts and Styles
-//  */
-// require_once $dir . '/inc/enqueue-scripts.php';
 
 
 
+// get request for fetch train departures:
+// https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/
+// https://stackoverflow.com/questions/53126137/wordpress-rest-api-custom-endpoint-with-url-parameter
 
-/**
- * Init Class
- */
-// require_once $dir . '/Slug_Custom_Route.php';
-
-// add_action( 'rest_api_init', function () {
-//   Slug_Custom_Route::register_routes();
-// });
+// https://svestkovka.marekmelichar.cz/wp-json/svestkovka/v1/timetable?from=1&to=8&date=2019-05-05
 
 
-
-add_action( 'rest_api_init', function () {
-  register_rest_route( 'svestkovka/v1', '/author/(?P<id>\d+)', array(
+add_action('rest_api_init', function () {
+  register_rest_route('svestkovka/v1', '/timetable', array(
     'methods' => 'GET',
-    'callback' => 'my_awesome_func',
+    'callback' => 'get_timetable_func',
     'args' => array(
-      'id' => array(
-        'validate_callback' => 'is_numeric'
-      ),
+      
     ),
     'permission_callback' => function () {
       // return current_user_can( 'edit_others_posts' );
       return true;
     }
-  ) );
-} );
+  ));
+});
 
-/**
- * Grab latest post title by an author!
- *
- * @param array $data Options for the function.
- * @return string|null Post title for the latest,
- * or null if none.
- */
-function my_awesome_func( $data ) {
+function get_timetable_func($data)
+{
+  // var_dump($data);
 
-  // local fetch from DB:
+  $search_from = $data->get_param('from');
+  $search_to = $data->get_param('to');
+  $search_date = $data->get_param('date');
 
-  // $posts = get_posts( array(
-  //   'author' => $data['id'],
-  // ) );
-  //
-  // if ( empty( $posts ) ) {
-  //   return new WP_Error( 'no_author', 'Invalid author', array( 'status' => 404 ) );
-  // }
-  //
-  // return $posts[0]->post_title;
+  // echo $search_from;
+  // echo $search_to;
+  // echo $search_date;
 
+  global $wpdb;
 
+  $querySpoje = "CALL vyhledejMiSpoje($search_from, $search_to, '$search_date', @smer);";
 
-  // how to get remote API: https://pippinsplugins.com/using-wp_remote_get-to-parse-json-from-remote-apis/
+  $result_spoje = $wpdb->get_results($querySpoje);
 
-  $request = wp_remote_get( 'https://pippinsplugins.com/edd-api/products' );
+  $response = array();
 
-  if( is_wp_error( $request ) ) {
-  	return false; // Bail early
+  foreach ($result_spoje as $item) {
+    $response[] = array(
+      'idSpecSpoje' => $item->idSpecSpoje,
+      'casOdjezdu' => $item->casOdjezdu,
+      'casPrijezdu' => $item->casPrijezdu,
+      'cisloSpoje' => $item->cisloSpoje,
+      'poznamky' => $item->poznamky
+    );
   }
-  $body = wp_remote_retrieve_body( $request );
-  $data = json_decode( $body );
-  if( ! empty( $data ) ) {
 
-  	echo '<ul>';
-  	foreach( $data->products as $product ) {
-  		echo '<li>';
-  			echo '<a href="' . esc_url( $product->info->link ) . '">' . $product->info->title . '</a>';
-  		echo '</li>';
-  	}
-  	echo '</ul>';
-  }
+  echo json_encode($response);
+
+	wp_die(); // this is required to terminate immediately and return a proper response
 }

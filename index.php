@@ -1,9 +1,9 @@
 <?php
 
 /*
-Plugin Name: SVESTKOVKA - Custom REST API endpoints
+Plugin Name: SVESTKOVKA - REST API endpoints for /timetable
 Version: 1.0.0
-Text Domain: svestkovka-custom-api
+Text Domain: svestkovka-custom-api-timetable
 Author: Marek Melichar
 Author URI: marekmelichar.cz
 License:     GPL2

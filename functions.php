@@ -1,7 +1,8 @@
 <?php
 
 // https://www.sitepoint.com/creating-custom-endpoints-for-the-wordpress-rest-api/
-
+// https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/
+// https://stackoverflow.com/questions/53126137/wordpress-rest-api-custom-endpoint-with-url-parameter
 
 
 
@@ -9,9 +10,6 @@
 
 
 // get request for fetch train departures:
-// https://developer.wordpress.org/rest-api/extending-the-rest-api/adding-custom-endpoints/
-// https://stackoverflow.com/questions/53126137/wordpress-rest-api-custom-endpoint-with-url-parameter
-
 // https://svestkovka.marekmelichar.cz/wp-json/svestkovka/v1/timetable?from=1&to=8&date=2019-05-05
 
 
